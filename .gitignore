@@ -1,0 +1,7 @@
+# temporary development scripts
+
+# sandbox/
+
+.vscode/
+__pycache__/
+*.pyc
