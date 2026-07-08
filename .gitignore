@@ -1,6 +1,8 @@
 # temporary development scripts
 
-# sandbox/
+sandbox/
+sandbox1/
+sandbox_drivers/
 
 .vscode/
 __pycache__/

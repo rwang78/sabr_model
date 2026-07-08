@@ -17,7 +17,7 @@ routine.
 import numpy as np
 from scipy.optimize import brentq
 
-from src.model_black import black_call
+from src.black_call_put_close import black_call
 
 
 def call_price_error(
@@ -56,7 +56,7 @@ def call_price_error(
     return error
 
 
-def imp_vol_call(
+def black_call_iv(
     price,
     f,
     k,
@@ -153,7 +153,7 @@ def brent_solver(
         root: scalar
 
     Brent, R. P. (1973), "Chapter 4: An Algorithm with Guaranteed Convergence for Finding a Zero of a Function", Algorithms for Minimization without Derivatives, Englewood Cliffs, NJ: Prentice-Hall, ISBN 0-13-022335-2
-    brent is preferred: https://www.quantlib.org/slides/dima-ql-intro-2.pdf?utm_source=chatgpt.com
+    brent is preferred: https://www.quantlib.org/slides/dima-ql-intro-2.pdf?utm_source
     '''
 
     root = brentq(
@@ -166,9 +166,5 @@ def brent_solver(
     return root
 
 '''
-later 
-
-bisection_solver(...)
-newton_solver(...)
-secant_solver(...)
+it is also possible to implement newton's method, midpoint method, or other equations solver 
 '''
