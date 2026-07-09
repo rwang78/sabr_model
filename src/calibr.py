@@ -10,7 +10,7 @@ problem, where the residuals are the differences between
 model and market implied volatilities across strikes.
 
 this file calibrates alpha, rho, and nu while beta is fixed.
-beta can be chosen as 0.0, 0.5, or 1.0.
+the beta values and grid refinement can be chosen in the driver.
 '''
 
 import numpy as np
@@ -90,15 +90,15 @@ def sabr_calibr_alpha_rho_nu_grid(
     t,
     iv_arr,
     beta,
-    alpha_min=0.001,
-    alpha_max=10.0,
-    n_alpha=20,
-    rho_min=-0.99,
-    rho_max=0.99,
-    n_rho=20,
-    nu_min=0.001,
-    nu_max=5.0,
-    n_nu=20,
+    alpha_min,
+    alpha_max,
+    n_alpha,
+    rho_min,
+    rho_max,
+    n_rho,
+    nu_min,
+    nu_max,
+    n_nu,
 ):
     '''
     routine use
@@ -193,32 +193,46 @@ def sabr_calibr_beta_cases(
     k_arr,
     t,
     iv_arr,
+    beta_arr,
+    alpha_min,
+    alpha_max,
+    n_alpha,
+    rho_min,
+    rho_max,
+    n_rho,
+    nu_min,
+    nu_max,
+    n_nu,
 ):
     '''
     routine use
-        calibrate alpha, rho, and nu for beta equal to 0.0, 0.5, and 1.0
+        calibrate alpha, rho, and nu for selected beta values
 
     inputs
         f: scalar, forward price
         k_arr: 1d array (n), strike prices
         t: scalar, time to expiration
         iv_arr: 1d array (n), market implied volatilities
+        beta_arr: 1d array (m), fixed beta values
+        alpha_min: scalar, lower bound for alpha
+        alpha_max: scalar, upper bound for alpha
+        n_alpha: scalar, number of alpha grid points
+        rho_min: scalar, lower bound for rho
+        rho_max: scalar, upper bound for rho
+        n_rho: scalar, number of rho grid points
+        nu_min: scalar, lower bound for nu
+        nu_max: scalar, upper bound for nu
+        n_nu: scalar, number of nu grid points
 
     returns
         results: list, each element is (beta, alpha, rho, nu, sse)
     '''
 
-    beta_arr = np.array(
-        [
-            0.0,
-            0.5,
-            1.0,
-        ]
-    )
-
     results = []
 
-    for i in range(len(beta_arr)):
+    n_beta = len(beta_arr)
+
+    for i in range(n_beta):
 
         beta_i = beta_arr[i]
 
@@ -228,6 +242,15 @@ def sabr_calibr_beta_cases(
             t,
             iv_arr,
             beta_i,
+            alpha_min,
+            alpha_max,
+            n_alpha,
+            rho_min,
+            rho_max,
+            n_rho,
+            nu_min,
+            nu_max,
+            n_nu,
         )
 
         alpha_i = params[0]

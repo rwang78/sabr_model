@@ -1,17 +1,15 @@
-
 '''
-routines to compute black implied volatility \sigma_market later to use in calibr.py
+routines to compute Black implied volatility
 
-The implied volatility is obtained by solving
+the implied volatility is obtained by solving
 
-    black price(volatility) = market price
+    Black forward price(volatility) = market price
 
-using a one dimensional root finding algomarket_ivrithm.
+using a one dimensional root finding algorithm.
 
-The solver is supplied as an input, allowing different
+the solver is supplied as an input, allowing different
 methods such as brent, bisection, newton, or secant
-to be used without modifying the implied volatility
-routine.
+to be used without modifying the implied volatility routine.
 '''
 
 import numpy as np
@@ -29,7 +27,8 @@ def call_price_error(
     df,
 ):
     '''
-    compute call pricing error
+    routine use
+        compute call pricing error
 
     inputs
         sigma: scalar, volatility
@@ -65,7 +64,8 @@ def black_call_iv(
     solver,
 ):
     '''
-    compute Black implied volatility
+    routine use
+        compute Black implied volatility
 
     inputs
         price: scalar, market call price
@@ -79,21 +79,18 @@ def black_call_iv(
         sigma: scalar, implied volatility
     '''
 
-    #computes \max(f-k,0) and discounts it to today df*\max(f-k,0)
+    intrinsic_value = f - k
 
-    diff = f - k
+    if intrinsic_value < 0.0:
 
-    if diff < 0.0:
-        diff = 0.0
+        intrinsic_value = 0.0
 
-    diff = df*diff
+    intrinsic_value = df*intrinsic_value
 
-    # if mkt price satisfies C_{\mathrm{market}}\le df\max(f-k,0), no positive implied volatility exists
-    if price <= diff:
+    if price <= intrinsic_value:
+
         return np.nan
 
-    # choose a search interval
-    # The upper bound corresponds to roughly 500% annual volatility, which is far beyond normal market values but ensures the root is almost always enclosed.
     sigma_low = 1e-6
     sigma_high = 5.0
 
@@ -115,11 +112,10 @@ def black_call_iv(
         df,
     )
 
-    # verify a sign change 
     if error_low*error_high > 0.0:
+
         return np.nan
 
-    # solve the root finding problem 
     sigma = solver(
         call_price_error,
         sigma_low,
@@ -133,7 +129,7 @@ def black_call_iv(
 
     return sigma
 
-# some solvers we can use 
+
 def brent_solver(
     func,
     x_low,
@@ -141,7 +137,8 @@ def brent_solver(
     *args,
 ):
     '''
-    solve f(x)=0 using Brent's method
+    routine use
+        solve f(x)=0 using Brent's method
 
     inputs
         func: function
@@ -151,9 +148,6 @@ def brent_solver(
 
     returns
         root: scalar
-
-    Brent, R. P. (1973), "Chapter 4: An Algorithm with Guaranteed Convergence for Finding a Zero of a Function", Algorithms for Minimization without Derivatives, Englewood Cliffs, NJ: Prentice-Hall, ISBN 0-13-022335-2
-    brent is preferred: https://www.quantlib.org/slides/dima-ql-intro-2.pdf?utm_source
     '''
 
     root = brentq(
@@ -164,7 +158,3 @@ def brent_solver(
     )
 
     return root
-
-'''
-it is also possible to implement newton's method, midpoint method, or other equations solver 
-'''

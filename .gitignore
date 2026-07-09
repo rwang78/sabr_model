@@ -1,9 +1,10 @@
 # temporary development scripts
 
-sandbox/
-sandbox1/
-sandbox_drivers/
-sandbox_tests/
+_drivers
+_no_need
+_results
+_src
+_tests
 
 .vscode/
 __pycache__/

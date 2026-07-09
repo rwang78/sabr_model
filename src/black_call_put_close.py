@@ -5,27 +5,23 @@ pricing
     European call
     European put
 
-greeks
-    forward delta
-    vega
-    volga
-    vanna
-
 notes
     uses forward price f and discount factor df
-
-adapted from "7_Complete_Black_Scholes_Real_Markets.ipynb"
-where we use forward price instead of spot price 
-
 '''
 
 import numpy as np
 from scipy.stats import norm
 
 
-def black_d1(f, k, sigma, t):
+def black_d1(
+    f,
+    k,
+    sigma,
+    t,
+):
     '''
-    compute d1 in the Black forward formula
+    routine use
+        compute d1 in the Black forward formula
 
     inputs
         f: scalar, forward price
@@ -37,22 +33,35 @@ def black_d1(f, k, sigma, t):
         d1: scalar
     '''
 
-    numerator = np.log(f/k) + 0.5*sigma**2*t
-    denominator = sigma*np.sqrt(t)
+    numerator = (
+        np.log(
+            f/k
+        )
+        + 0.5*sigma*sigma*t
+    )
+
+    denominator = sigma*np.sqrt(
+        t
+    )
 
     d1 = numerator/denominator
 
     return d1
 
 
-def black_d2(f, k, sigma, t):
+def black_d2(
+    f,
+    k,
+    sigma,
+    t,
+):
     '''
-    routine:
+    routine use
         compute d2 in the Black forward formula
 
     inputs
         f: scalar, forward price
-        k: scalar, strike````markdown price
+        k: scalar, strike price
         sigma: scalar, volatility
         t: scalar, time to expiration
 
@@ -60,16 +69,29 @@ def black_d2(f, k, sigma, t):
         d2: scalar
     '''
 
-    d1 = black_d1(f, k, sigma, t)
+    d1 = black_d1(
+        f,
+        k,
+        sigma,
+        t,
+    )
 
-    d2 = d1 - sigma*np.sqrt(t)
+    d2 = d1 - sigma*np.sqrt(
+        t
+    )
 
     return d2
 
 
-def black_call(f, k, sigma, t, df):
+def black_call(
+    f,
+    k,
+    sigma,
+    t,
+    df,
+):
     '''
-    routine:
+    routine use
         compute European call price using forward price
 
     inputs
@@ -83,17 +105,41 @@ def black_call(f, k, sigma, t, df):
         call: scalar, European call price
     '''
 
-    d1 = black_d1(f, k, sigma, t)
-    d2 = black_d2(f, k, sigma, t)
+    d1 = black_d1(
+        f,
+        k,
+        sigma,
+        t,
+    )
 
-    call = df*(f*norm.cdf(d1) - k*norm.cdf(d2))
+    d2 = black_d2(
+        f,
+        k,
+        sigma,
+        t,
+    )
+
+    call = df*(
+        f*norm.cdf(
+            d1
+        )
+        - k*norm.cdf(
+            d2
+        )
+    )
 
     return call
 
 
-def black_put(f, k, sigma, t, df):
+def black_put(
+    f,
+    k,
+    sigma,
+    t,
+    df,
+):
     '''
-    routine:
+    routine use
         compute European put price using forward price
 
     inputs
@@ -107,12 +153,27 @@ def black_put(f, k, sigma, t, df):
         put: scalar, European put price
     '''
 
-    call = black_call(f, k, sigma, t, df)
+    d1 = black_d1(
+        f,
+        k,
+        sigma,
+        t,
+    )
 
-    put = call + df*(k - f)
+    d2 = black_d2(
+        f,
+        k,
+        sigma,
+        t,
+    )
+
+    put = df*(
+        k*norm.cdf(
+            -d2
+        )
+        - f*norm.cdf(
+            -d1
+        )
+    )
 
     return put
-
-
-
-#

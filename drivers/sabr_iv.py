@@ -1,23 +1,29 @@
+import os
 import pandas as pd
 
-from src.plot_sabr_iv import plot_sabr_smile
+from src.sabr_iv import sabr_iv
 
 
-param_file = (
+ticker = "SPY"
+
+expiry = "2026-08-21"
+
+input_file = (
     "results/tables/"
-    "SPY_2026-08-21_sabr_params_computed_iv.csv"
+    "SPY_2026-08-21_hedge_output.csv"
 )
 
-option_file = (
+output_file = (
     "results/tables/"
-    "SPY_2026-08-21_computed_iv.csv"
+    "SPY_2026-08-21_hedge_output.csv"
 )
 
 
 def main():
     '''
     routine use
-        generate SABR volatility smile plots and csv tables for beta cases
+        compute Hagan SABR implied volatilities from calibrated
+        SABR parameters and append them to the hedge output table
 
     inputs
         none
@@ -26,65 +32,74 @@ def main():
         none
     '''
 
-    param_table = pd.read_csv(
-        param_file,
+    hedge_table = pd.read_csv(
+        input_file,
     )
 
-    option_table = pd.read_csv(
-        option_file,
+    n_options = len(
+        hedge_table
     )
 
-    option_table = option_table.dropna(
-        subset=[
-            "computed_impliedVolatility",
-        ]
-    )
+    sabr_iv_arr = []
 
-    beta_arr = [
-        0.0,
-        0.5,
-        1.0,
-    ]
+    for i in range(n_options):
 
-    for i in range(len(beta_arr)):
+        s = hedge_table["spot"].values[i]
 
-        beta_case = beta_arr[i]
+        k = hedge_table["strike"].values[i]
 
-        param_row = param_table[
-            param_table["beta"] == beta_case
-        ].iloc[0]
+        t = hedge_table["t"].values[i]
 
-        print(param_row)
+        alpha = hedge_table["sabr_alpha"].values[i]
 
-        ticker = param_row["ticker"]
-        expiry = param_row["expiry"]
+        beta = hedge_table["sabr_beta"].values[i]
 
-        f = param_row["spot"]
-        t = param_row["t"]
+        rho = hedge_table["sabr_rho"].values[i]
 
-        alpha = param_row["alpha"]
-        beta = param_row["beta"]
-        rho = param_row["rho"]
-        nu = param_row["nu"]
+        nu = hedge_table["sabr_nu"].values[i]
 
-        model_name = (
-            "beta_"
-            + str(beta_case)
-        )
-
-        plot_sabr_smile(
-            option_table,
-            f,
+        sigma = sabr_iv(
+            s,
+            k,
             t,
             alpha,
             beta,
             rho,
             nu,
-            ticker,
-            expiry,
-            model_name,
         )
+
+        sabr_iv_arr.append(
+            sigma
+        )
+
+    hedge_table["sabr_iv"] = sabr_iv_arr
+
+    output_dir = os.path.dirname(
+        output_file,
+    )
+
+    if output_dir != "":
+
+        os.makedirs(
+            output_dir,
+            exist_ok=True,
+        )
+
+    hedge_table.to_csv(
+        output_file,
+        index=False,
+    )
+
+    print(
+        hedge_table.head()
+    )
+
+    print(
+        "saved to",
+        output_file,
+    )
 
 
 if __name__ == "__main__":
+
     main()

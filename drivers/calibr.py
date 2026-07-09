@@ -1,32 +1,29 @@
 import os
+import numpy as np
 import pandas as pd
 
 from src.calibr import sabr_calibr_beta_cases
 
 
-# market data
-
 ticker = "SPY"
 
 expiry = "2026-08-21"
 
-spot = 751.280029296875
-
-t = 0.1232876712328767
-
-
-# input data
-
-csv_file = (
+input_file = (
     "results/tables/"
-    "SPY_2026-08-21_computed_iv.csv"
+    "SPY_2026-08-21_hedge_output.csv"
+)
+
+output_file = (
+    "results/tables/"
+    "SPY_2026-08-21_sabr_params.csv"
 )
 
 
 def main():
     '''
     routine use
-        obtain calibrated SABR parameters using computed Black implied volatility
+        calibrate SABR alpha, rho, and nu for selected beta values
 
     inputs
         none
@@ -35,92 +32,120 @@ def main():
         none
     '''
 
-    iv_table = pd.read_csv(
-        csv_file,
+    hedge_table = pd.read_csv(
+        input_file,
     )
 
-    iv_table = iv_table.dropna(
+    valid_table = hedge_table.dropna(
         subset=[
-            "computed_impliedVolatility",
+            "black_imp_vol",
         ]
     )
 
-    k_arr = iv_table["strike"].values
+    f = valid_table["spot"].values[0]
 
-    iv_arr = iv_table["computed_impliedVolatility"].values
+    t = valid_table["t"].values[0]
+
+    k_arr = valid_table["strike"].values
+
+    iv_arr = valid_table["black_imp_vol"].values
+
+    beta_arr = np.array(
+        [
+            0.0,
+            0.5,
+            1.0,
+        ]
+    )
+
+    alpha_min = 0.001
+    alpha_max = 10.0
+    n_alpha = 25
+
+    rho_min = -0.99
+    rho_max = 0.99
+    n_rho = 25
+
+    nu_min = 0.001
+    nu_max = 5.0
+    n_nu = 25
 
     results = sabr_calibr_beta_cases(
-        spot,
+        f,
         k_arr,
         t,
         iv_arr,
+        beta_arr,
+        alpha_min,
+        alpha_max,
+        n_alpha,
+        rho_min,
+        rho_max,
+        n_rho,
+        nu_min,
+        nu_max,
+        n_nu,
     )
 
-    param_rows = []
+    result_table = pd.DataFrame(
+        results,
+        columns=[
+            "beta",
+            "alpha",
+            "rho",
+            "nu",
+            "sse",
+        ],
+    )
 
-    for i in range(len(results)):
+    result_table.insert(
+        0,
+        "expiry",
+        expiry,
+    )
 
-        beta_i = results[i][0]
-        alpha_i = results[i][1]
-        rho_i = results[i][2]
-        nu_i = results[i][3]
-        sse_i = results[i][4]
+    result_table.insert(
+        0,
+        "ticker",
+        ticker,
+    )
 
-        param_rows.append(
-            {
-                "ticker": ticker,
-                "expiry": expiry,
-                "t": t,
-                "spot": spot,
-                "beta": beta_i,
-                "alpha": alpha_i,
-                "rho": rho_i,
-                "nu": nu_i,
-                "sse": sse_i,
-            }
+    output_dir = os.path.dirname(
+        output_file,
+    )
+
+    if output_dir != "":
+        os.makedirs(
+            output_dir,
+            exist_ok=True,
         )
 
-    param_table = pd.DataFrame(
-        param_rows,
-    )
-
-    output_dir = "results/tables"
-
-    os.makedirs(
-        output_dir,
-        exist_ok=True,
-    )
-
-    output_file = (
-        output_dir
-        + "/"
-        + ticker
-        + "_"
-        + expiry
-        + "_sabr_params_computed_iv.csv"
-    )
-
-    param_table.to_csv(
+    result_table.to_csv(
         output_file,
         index=False,
     )
 
-    print(param_table)
+    print(
+        result_table,
+    )
 
-    print()
-    print("saved to")
-    print(output_file)
+    print(
+        "saved to",
+        output_file,
+    )
 
 
 if __name__ == "__main__":
+
     main()
 
-'''
-  ticker      expiry         t        spot  beta      alpha       rho        nu       sse
-0    SPY  2026-08-21  0.123288  751.280029   0.0  10.000000 -0.260526  5.000000  0.840300
-1    SPY  2026-08-21  0.123288  751.280029   0.5   3.684842 -0.573158  2.105842  0.008537
-2    SPY  2026-08-21  0.123288  751.280029   1.0   6.842421 -0.885789  5.000000  0.362051
 
-saved to
-results/tables/SPY_2026-08-21_sabr_params_computed_iv.csv
+'''
+  ticker      expiry  beta      alpha     rho        nu       sse
+0    SPY  2026-08-21   0.0  10.000000 -0.2475  5.000000  0.839690
+1    SPY  2026-08-21   0.5   3.750625 -0.5775  1.875625  0.007951
+2    SPY  2026-08-21   1.0   6.250375 -0.9900  4.583417  0.281282
+saved to results/tables/SPY_2026-08-21_sabr_params.csv
+
+~ 2min
 '''
