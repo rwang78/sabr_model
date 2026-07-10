@@ -1,4 +1,4 @@
-# An SABR Model Validation
+# An SABR model validation
 
 ## Problem
 
