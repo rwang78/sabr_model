@@ -57,28 +57,32 @@ def plot_hedge_value_histogram(
 
     plt.axvline(
         black_mean,
+        color="blue",
         label=f"black mean hedge value: {black_mean:.4f}",
         linestyle="--",
-        linewidth=3,
+        linewidth=1,
     )
 
     plt.axvline(
         sabr_mean,
+        color="orange",
         label=f"sabr mean hedge value: {sabr_mean:.4f}",
         linestyle="--",
-        linewidth=3,
+        linewidth=1,
     )
 
     plt.axvline(
         black_call_price,
+        color="blue",
         label=f"black closed form call: {black_call_price:.4f}",
-        linewidth=3,
+        linewidth=1,
     )
 
     plt.axvline(
         sabr_call_price,
+        color="orange",
         label=f"sabr hagan call: {sabr_call_price:.4f}",
-        linewidth=3,
+        linewidth=1,
     )
 
     plt.xlabel(

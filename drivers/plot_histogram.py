@@ -247,14 +247,6 @@ def main():
             exist_ok=True,
         )
 
-    plot_hedge_value_histogram(
-        black_hedge_value_arr,
-        sabr_hedge_value_arr,
-        black_call_price,
-        sabr_call_price,
-        output_file,
-    )
-
     print(
         "strike:",
         k,
@@ -295,7 +287,26 @@ def main():
         output_file,
     )
 
+    plot_hedge_value_histogram(
+        black_hedge_value_arr,
+        sabr_hedge_value_arr,
+        black_call_price,
+        sabr_call_price,
+        output_file,
+    )
+
 
 if __name__ == "__main__":
 
     main()
+
+'''
+strike: 751.0
+black hedge value mean: 13.253992073468815
+black call price: 13.26463226956522
+black hedge error: 0.010640196096405319
+sabr hedge value mean: 14.828372866446934
+sabr call price: 14.719245729713242
+sabr hedge error: 0.1091271367336919
+saved figure to results/figures/SPY_2026-08-21_hedge_value_histogram.png
+'''
