@@ -1,36 +1,24 @@
 # An SABR Model Validation
 
-## problem
+## Problem
 
 This project studies option pricing and delta hedging under the SABR stochastic volatility model.
 
-The workflow starts from market option prices, computes the corresponding Black implied volatilities, calibrates the SABR parameters using Hagan's asymptotic volatility formula, and compares the model with a constant volatility Black benchmark.
+The workflow starts from market option prices, computes the corresponding Black implied volatilities, calibrates the SABR parameters using Hagan's asymptotic volatility formula, and compares the model with a constant volatility Black benchmark
 
-## Repository Structure
+## Structure
 
-`src/`
+`src/`                 all numerical routines
 
-All numerical routines.
+`drivers/`          driver scripts used to reproduce all tables and figures
 
-`drivers/`
+`tests/`             tests for the routines in `src/`
 
-Driver scripts used to reproduce all tables and figures.
+`utils/`             shared utility functions, such as rmse and absolute error
 
-`tests/`
+`results/`          output tables and figures
 
-Tests for the routines in `src/`.
-
-`utils/`
-
-Shared utility functions, such as RMSE and absolute error.
-
-`results/`
-
-Output tables and figures.
-
-`sandbox/`
-
-Temporary development code.
+`sandbox/`       temporary development code
 
 ## Running
 
@@ -42,64 +30,43 @@ python -m drivers.<driver_name>
 
 Recommended execution order
 
-`data_hedge_input`
+`data_hedge_input`                copy the required columns from the downloaded market option data
 
-Copy the required columns from the downloaded market option data.
+`data_black_vol_constant`    compute the constant volatility used by the Black model
 
-`data_black_vol_constant`
+`black_call`                            compute Black call prices
 
-Compute the constant volatility used by the Black model.
+`black_imp_vol`                   compute Black implied volatilities
 
-`black_call`
+`calibr`                                  calibrate the SABR parameters
 
-Compute Black call prices.
+`calibr_add_output`         append the calibrated parameters to the output table
 
-`black_imp_vol`
+`sabr_iv`                             compute Hagan implied volatilities
 
-Compute Black implied volatilities.
+`sabr_call`                         compute SABR call prices
 
-`calibr`
+`mc_forward`                    generate forward price paths under the Black and SABR models
 
-Calibrate the SABR parameters.
+`hedge`                               perform Monte Carlo pricing and dynamic delta hedging
 
-`calibr_add_output`
-
-Append the calibrated parameters to the output table.
-
-`sabr_iv`
-
-Compute Hagan implied volatilities.
-
-`sabr_call`
-
-Compute SABR call prices.
-
-`mc_forward`
-
-Generate forward price paths under the Black and SABR models.
-
-`hedge`
-
-Perform Monte Carlo pricing and dynamic delta hedging.
-
-The plotting drivers can then be executed to reproduce all figures.
+The plotting drivers can then be executed to reproduce all figures
 
 ## Output
 
-The main output table is
+Main output table
 
 `results/tables/SPY_2026-08-21_hedge_output.csv`
 
-All figures are saved under
+Figures
 
 `results/figures/`
 
 ## Data
 
-The current implementation uses
+Current implementation
 
-* Underlying: `SPY`
-* Expiration: `2026-08-21`
+* underlying: `SPY`
+* expiration: `2026-08-21`
 
-The workflow can be applied to other option chains by changing the input data.
-```
+The workflow can be applied to other option chains by changing the input data
